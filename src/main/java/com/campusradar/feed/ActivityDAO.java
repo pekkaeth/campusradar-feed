@@ -178,5 +178,16 @@ public class ActivityDAO {
             ps.setTimestamp(1, nowTs());
             return ps.executeUpdate();
         }
+       // how many live activities this user is hosting right now (used to stop spam)
+    public int countActiveByHost(int userId) throws Exception {
+        try (Connection con = DBUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(
+                 "SELECT COUNT(*) FROM activities WHERE created_by = ? AND status = 'ACTIVE' AND end_time > ?")) {
+            ps.setInt(1, userId);
+            ps.setTimestamp(2, nowTs());
+            try (ResultSet rs = ps.executeQuery()) {
+                rs.next();
+                return rs.getInt(1);
+            }
+        }
     }
-}
